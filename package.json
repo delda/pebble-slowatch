@@ -12,6 +12,7 @@
     "enableMultiJS": true,
     "targetPlatforms": [
       "chalk",
+      "flint",
       "gabbro"
     ],
     "watchapp": {
