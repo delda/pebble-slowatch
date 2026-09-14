@@ -15,7 +15,7 @@ static GPoint prv_point_on_circle(GPoint centre, int16_t radius, int32_t angle) 
                 centre.y - (int16_t)(cos_lookup(angle) * radius / TRIG_MAX_RATIO));
 }
 
-#if !defined(PBL_PLATFORM_FLINT) && !defined(PBL_PLATFORM_DIORITE)
+#if !defined(PBL_PLATFORM_BASALT) && !defined(PBL_PLATFORM_FLINT) && !defined(PBL_PLATFORM_DIORITE)
 static void prv_draw_tick(GContext *ctx, GPoint centre, int16_t radius,
                           int32_t angle, bool half_hour_tick) {
   const int16_t length = half_hour_tick ? 9 : 4;
@@ -69,7 +69,7 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
 }
 #endif
 
-#if defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_DIORITE)
+#if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_DIORITE)
 static GPoint prv_point_on_rectangle(GPoint centre, int16_t half_width,
                                      int16_t half_height, int32_t angle) {
   const int32_t sine = sin_lookup(angle);
@@ -230,7 +230,7 @@ void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   prv_draw_chalk_face(ctx, bounds, time);
 #elif defined(PBL_PLATFORM_GABBRO)
   prv_draw_gabbro_face(ctx, bounds, time);
-#elif defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_DIORITE)
+#elif defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_DIORITE)
   prv_draw_flint_face(ctx, bounds, time);
 #else
   prv_draw_dial(ctx, bounds, time, 5, 12);
