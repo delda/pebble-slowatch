@@ -1,7 +1,7 @@
 {
   "name": "pebble-slowatch2",
   "author": "MakeAwesomeHappen",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "keywords": ["pebble-app"],
   "private": true,
   "dependencies": {},
@@ -12,6 +12,7 @@
     "enableMultiJS": true,
     "targetPlatforms": [
       "chalk",
+      "diorite",
       "flint",
       "gabbro"
     ],

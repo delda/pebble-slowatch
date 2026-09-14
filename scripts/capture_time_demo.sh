@@ -13,11 +13,17 @@ readonly PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly APP_FILE="$PROJECT_DIR/build/pebble-slowatch.pbw"
 # Override when the emulator is already responsive, e.g. TIME_SETTLE_SECONDS=1.
 readonly TIME_SETTLE_SECONDS="${TIME_SETTLE_SECONDS:-2}"
+# Flint's screenshot service stops responding on its 19th transfer in the same
+# QEMU session. Leave one transfer of headroom and restart after 18 captures.
+# Restarting periodically also keeps longer captures reliable on the other
+# emulators.
+readonly MAX_SCREENSHOTS_PER_EMULATOR_SESSION=18
+readonly SCREENSHOT_TIMEOUT_SECONDS=30
 # Keep the complete daily sequence short enough to share easily.  The actual
 # frame rate is calculated from the number of captured PNGs below.
 readonly GIF_MAX_DURATION_SECONDS=5
 
-readonly -a DEFAULT_PLATFORMS=(chalk gabbro)
+readonly -a DEFAULT_PLATFORMS=(chalk flint gabbro)
 declare -a TIMES=()
 for ((minutes=0; minutes < 24 * 60; minutes += 15)); do
   printf -v time '%02d:%02d' "$((minutes / 60))" "$((minutes % 60))"
@@ -41,7 +47,8 @@ capture_screenshot() {
   local attempt
 
   for attempt in 1 2 3; do
-    if pebble screenshot --emulator "$platform" --no-open "$frame"; then
+    if timeout --foreground "$SCREENSHOT_TIMEOUT_SECONDS" \
+        pebble screenshot --emulator "$platform" --no-open "$frame"; then
       return 0
     fi
     sleep 1
@@ -164,6 +171,7 @@ capture_platform() {
   local platform="$1"
   local output_dir="$PROJECT_DIR/resources/images/screenshots/$platform/time-demo"
   local time frame
+  local capture_count=0
 
   mkdir -p "$output_dir"
   rm -f "$output_dir"/time-*.png
@@ -175,10 +183,22 @@ capture_platform() {
 
   for time in "${TIMES[@]}"; do
     frame="$output_dir/time-${time//:/-}.png"
+
+    # The Flint emulator hangs on screenshot number 19 in a QEMU session.
+    # Start a fresh session before reaching that limit, then restore the app
+    # and requested time below.
+    if (( capture_count > 0 && capture_count % MAX_SCREENSHOTS_PER_EMULATOR_SESSION == 0 )); then
+      stop_emulator
+      start_emulator "$platform"
+      install_watchface "$platform"
+      pebble emu-button --emulator "$platform" click back || true
+    fi
+
     set_emulator_time "$platform" "$time"
     # The watchface redraws on the next minute tick after a time change.
     sleep "$TIME_SETTLE_SECONDS"
     capture_screenshot "$platform" "$frame"
+    ((capture_count += 1))
   done
 
   create_time_demo_gif "$output_dir"
