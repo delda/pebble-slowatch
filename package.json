@@ -1,5 +1,5 @@
 {
-  "name": "pebble-slowatch2",
+  "name": "pebble-slowatch",
   "author": {
     "name": "Davide Dell'Erba",
     "email": "info@davidedellerba.it",
@@ -14,11 +14,15 @@
     "url": "https://github.com/delda/pebble-slowatch/issues"
   },
   "version": "1.3.0",
-  "keywords": ["pebble-app"],
+  "keywords": [
+    "pebble-app"
+  ],
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "@rebble/clay": "^1.0.10"
+  },
   "pebble": {
-    "displayName": "pebble-slowatch2",
+    "displayName": "SloWatch",
     "uuid": "4181319c-2784-466f-82a6-540bdad27102",
     "sdkVersion": "3",
     "enableMultiJS": true,
@@ -35,7 +39,7 @@
       "watchface": true
     },
     "messageKeys": [
-      "dummy"
+      "midnight_position"
     ],
     "resources": {
       "media": [

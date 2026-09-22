@@ -21,11 +21,7 @@ void settings_set_midnight_position(MidnightPosition position) {
 
 void settings_init(SettingsChangedHandler changed_handler) {
   s_changed_handler = changed_handler;
-#if defined(PBL_PLATFORM_FLINT)
   s_midnight_position = MIDNIGHT_POSITION_BOTTOM;
-#else
-  s_midnight_position = MIDNIGHT_POSITION_TOP;
-#endif
   if (persist_exists(PERSIST_KEY_MIDNIGHT_POSITION)) {
     const int stored_position = persist_read_int(PERSIST_KEY_MIDNIGHT_POSITION);
     if (stored_position == MIDNIGHT_POSITION_BOTTOM) {

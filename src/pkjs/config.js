@@ -7,7 +7,7 @@ module.exports = [
     type: 'radiogroup',
     messageKey: 'midnight_position',
     label: 'Midnight position',
-    defaultValue: 'top',
+    defaultValue: 'bottom',
     options: [
       {
         label: 'Midnight at top',

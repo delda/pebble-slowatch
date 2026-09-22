@@ -1,6 +1,7 @@
 #include <pebble.h>
 
 #include "clock.h"
+#include "settings.h"
 #include "watch_face.h"
 
 static Window *s_window;
@@ -12,6 +13,19 @@ static void prv_face_layer_update(Layer *layer, GContext *ctx) {
 
 static void prv_clock_updated(void) {
   layer_mark_dirty(s_face_layer);
+}
+
+static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
+  Tuple *position_tuple = dict_find(iterator, MESSAGE_KEY_midnight_position);
+  if (position_tuple == NULL || position_tuple->type != TUPLE_CSTRING) {
+    return;
+  }
+
+  if (strcmp(position_tuple->value->cstring, "bottom") == 0) {
+    settings_set_midnight_position(MIDNIGHT_POSITION_BOTTOM);
+  } else if (strcmp(position_tuple->value->cstring, "top") == 0) {
+    settings_set_midnight_position(MIDNIGHT_POSITION_TOP);
+  }
 }
 
 static void prv_window_load(Window *window) {
@@ -34,9 +48,13 @@ static void prv_init(void) {
   });
   window_stack_push(s_window, true);
   clock_init(prv_clock_updated);
+  settings_init(prv_clock_updated);
+  app_message_register_inbox_received(prv_inbox_received);
+  app_message_open(128, 64);
 }
 
 static void prv_deinit(void) {
+  settings_deinit();
   clock_deinit();
   window_destroy(s_window);
 }

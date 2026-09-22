@@ -1,5 +1,7 @@
 #include "watch_face.h"
 
+#include "settings.h"
+
 #define TICKS_PER_HOUR 4
 
 static GColor prv_navy(void) {
@@ -8,6 +10,13 @@ static GColor prv_navy(void) {
 
 static GColor prv_copper(void) {
   return GColorFromHEX(0xC98858);
+}
+
+static int32_t prv_dial_angle(int32_t angle) {
+  if (settings_midnight_position() == MIDNIGHT_POSITION_BOTTOM) {
+    angle += TRIG_MAX_ANGLE / 2;
+  }
+  return angle % TRIG_MAX_ANGLE;
 }
 
 static GPoint prv_point_on_circle(GPoint centre, int16_t radius, int32_t angle) {
@@ -43,12 +52,13 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
   for (int tick = 0; tick < HOURS_PER_DAY * TICKS_PER_HOUR; tick++) {
     const bool half_hour_tick = (tick % TICKS_PER_HOUR) == TICKS_PER_HOUR / 2;
     prv_draw_tick(ctx, centre, tick_radius,
-                  tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * TICKS_PER_HOUR), half_hour_tick);
+                  prv_dial_angle(tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * TICKS_PER_HOUR)),
+                  half_hour_tick);
   }
 
   graphics_context_set_text_color(ctx, GColorWhite);
   for (int hour = 1; hour <= HOURS_PER_DAY; hour++) {
-    const int32_t angle = hour * TRIG_MAX_ANGLE / HOURS_PER_DAY;
+    const int32_t angle = prv_dial_angle(hour * TRIG_MAX_ANGLE / HOURS_PER_DAY);
     GPoint point = prv_point_on_circle(centre, label_radius, angle);
     char label[3];
     snprintf(label, sizeof(label), "%d", hour);
@@ -57,7 +67,8 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 
-  const int32_t hand_angle = time.minutes_today * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 60);
+  const int32_t hand_angle =
+      prv_dial_angle(time.minutes_today * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 60));
   graphics_context_set_stroke_color(ctx, prv_copper());
   graphics_context_set_stroke_width(ctx, 4);
   graphics_draw_line(ctx, prv_point_on_circle(centre, 20, hand_angle + TRIG_MAX_ANGLE / 2),
@@ -130,6 +141,16 @@ static void prv_draw_flint_label(GContext *ctx, int hour, GPoint point) {
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 
+static int prv_flint_label_position(int hour) {
+  if (settings_midnight_position() == MIDNIGHT_POSITION_BOTTOM) {
+    hour += HOURS_PER_DAY / 2;
+    if (hour > HOURS_PER_DAY) {
+      hour -= HOURS_PER_DAY;
+    }
+  }
+  return hour;
+}
+
 static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
   const int16_t label_inset = 15;
   const int16_t smallest_side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
@@ -148,7 +169,8 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
   graphics_context_set_text_color(ctx, GColorWhite);
 
   for (int tick = 0; tick < HOURS_PER_DAY * TICKS_PER_HOUR; tick++) {
-    const int32_t angle = tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * TICKS_PER_HOUR);
+    const int32_t angle =
+        prv_dial_angle(tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * TICKS_PER_HOUR));
     const bool half_hour_tick = (tick % TICKS_PER_HOUR) == TICKS_PER_HOUR / 2;
     const int16_t tick_length = half_hour_tick ? 9 : 4;
     const GPoint outer_point = prv_point_on_rectangle(centre, tick_half_width,
@@ -160,15 +182,13 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
   }
 
   for (int hour = 1; hour <= HOURS_PER_DAY; hour++) {
-    const int32_t previous_tick_angle =
+    const int32_t previous_tick_angle = prv_dial_angle(
         (hour * TICKS_PER_HOUR - TICKS_PER_HOUR / 2) * TRIG_MAX_ANGLE /
-        (HOURS_PER_DAY * TICKS_PER_HOUR);
+        (HOURS_PER_DAY * TICKS_PER_HOUR));
     int32_t next_tick_angle =
         (hour * TICKS_PER_HOUR + TICKS_PER_HOUR / 2) * TRIG_MAX_ANGLE /
         (HOURS_PER_DAY * TICKS_PER_HOUR);
-    if (next_tick_angle >= TRIG_MAX_ANGLE) {
-      next_tick_angle -= TRIG_MAX_ANGLE;
-    }
+    next_tick_angle = prv_dial_angle(next_tick_angle);
     const GPoint previous_tick = prv_point_on_rectangle(centre, tick_half_width,
                                                          tick_half_height,
                                                          previous_tick_angle);
@@ -190,13 +210,14 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
                            centre.y + (midpoint_y_offset < 0 ? -label_half_height : label_half_height));
     }
 
-    const GPoint label_offset = prv_flint_label_offset(hour);
+    const GPoint label_offset = prv_flint_label_offset(prv_flint_label_position(hour));
     label_point.x += label_offset.x;
     label_point.y += label_offset.y;
     prv_draw_flint_label(ctx, hour, label_point);
   }
 
-  const int32_t hand_angle = time.minutes_today * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 60);
+  const int32_t hand_angle =
+      prv_dial_angle(time.minutes_today * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 60));
   graphics_context_set_stroke_color(ctx, prv_copper());
   graphics_context_set_stroke_width(ctx, 4);
   graphics_draw_line(ctx, prv_point_on_circle(centre, 18, hand_angle + TRIG_MAX_ANGLE / 2),
