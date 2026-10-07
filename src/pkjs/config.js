@@ -9,7 +9,7 @@ module.exports = [
     label: 'Color layout',
     defaultValue: 'default',
     options: [
-      { label: 'Default — navy / copper / white', value: 'default' },
+      { label: 'Default — navy / white / copper', value: 'default' },
       { label: 'Snow — white / black / gray', value: 'snow' },
       { label: 'Night — black / white / gray', value: 'night' },
       { label: 'Sand — beige / black / gray', value: 'sand' },

@@ -46,53 +46,53 @@ static void prv_apply_color_layout(ColorLayout layout) {
     // Keep the original SloWatch palette as the first/default layout.
     case COLOR_LAYOUT_DEFAULT:
       s_background_color = 0x062D54; // Navy
-      s_hand_color = 0xC98858;       // Copper
-      s_detail_color = 0xFFFFFF;     // White
+      s_detail_color = 0xFFFFFF;     // White hand
+      s_hand_color = 0xC98858;       // Copper numbers
       break;
     case COLOR_LAYOUT_SNOW:          // White / Black / Gray
       s_background_color = 0xFFFFFF;
-      s_hand_color = 0x000000;
-      s_detail_color = 0xAAAAAA;
+      s_detail_color = 0x000000;
+      s_hand_color = 0xAAAAAA;
       break;
     case COLOR_LAYOUT_NIGHT:         // Black / White / Gray
       s_background_color = 0x000000;
-      s_hand_color = 0xFFFFFF;
-      s_detail_color = 0xAAAAAA;
+      s_detail_color = 0xFFFFFF;
+      s_hand_color = 0xAAAAAA;
       break;
     case COLOR_LAYOUT_SAND:          // Beige / Black / Gray
-      s_background_color = 0xAA5500; // Pebble Windsor Tan
-      s_hand_color = 0x000000;
-      s_detail_color = 0xAAAAAA;
+      s_background_color = 0xFFFFAA; // Pebble Windsor Tan
+      s_detail_color = 0x000000;
+      s_hand_color = 0xAAAAAA;
       break;
     case COLOR_LAYOUT_SKY:           // Blue / White / Gray
       s_background_color = 0x0000FF;
-      s_hand_color = 0xFFFFFF;
-      s_detail_color = 0xAAAAAA;
+      s_detail_color = 0xFFFFFF;
+      s_hand_color = 0xAAAAAA;
       break;
     case COLOR_LAYOUT_VANILLA:       // White / Black / Beige
       s_background_color = 0xFFFFFF;
-      s_hand_color = 0x000000;
-      s_detail_color = 0xAA5500;
+      s_detail_color = 0x000000;
+      s_hand_color = 0xAA55AA;
       break;
-    case COLOR_LAYOUT_SUN:           // Yellow / Black / Yellow
+    case COLOR_LAYOUT_SUN:           // Yellow / Black / Brawn
       s_background_color = 0xFFFF00;
-      s_hand_color = 0x000000;
-      s_detail_color = 0xFFFF00;
+      s_detail_color = 0x000000;
+      s_hand_color = 0xAA5500;
       break;
     case COLOR_LAYOUT_MEADOW:        // White / Black / Green
       s_background_color = 0xFFFFFF;
-      s_hand_color = 0x000000;
-      s_detail_color = 0x00AA00;
+      s_detail_color = 0x000000;
+      s_hand_color = 0x00AA00;
       break;
     case COLOR_LAYOUT_MINT:          // Light green / Black / Gray
       s_background_color = 0x55FF55; // Pebble Screamin Green
-      s_hand_color = 0x000000;
-      s_detail_color = 0xAAAAAA;
+      s_detail_color = 0x000000;
+      s_hand_color = 0xAAAAAA;
       break;
     case COLOR_LAYOUT_FOREST:        // Dark green / White / Yellow
       s_background_color = 0x005500;
-      s_hand_color = 0xFFFFFF;
-      s_detail_color = 0xFFFF00;
+      s_detail_color = 0xFFFFFF;
+      s_hand_color = 0xFFFF00;
       break;
     default:
       layout = COLOR_LAYOUT_DEFAULT;
