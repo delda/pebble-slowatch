@@ -39,7 +39,8 @@
       "watchface": true
     },
     "messageKeys": [
-      "midnight_position"
+      "midnight_position",
+      "color_layout"
     ],
     "resources": {
       "media": [

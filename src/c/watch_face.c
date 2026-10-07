@@ -5,11 +5,15 @@
 #define TICKS_PER_HOUR 4
 
 static GColor prv_navy(void) {
-  return GColorFromHEX(0x062D54);
+  return GColorFromHEX(settings_background_color());
 }
 
 static GColor prv_copper(void) {
-  return GColorFromHEX(0xC98858);
+  return GColorFromHEX(settings_hand_color());
+}
+
+static GColor prv_detail(void) {
+  return GColorFromHEX(settings_detail_color());
 }
 
 static int32_t prv_dial_angle(int32_t angle) {
@@ -29,7 +33,7 @@ static GPoint prv_point_on_circle(GPoint centre, int16_t radius, int32_t angle) 
 static void prv_draw_tick(GContext *ctx, GPoint centre, int16_t radius,
                           int32_t angle, bool half_hour_tick) {
   const int16_t length = half_hour_tick ? 9 : 4;
-  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_stroke_color(ctx, prv_detail());
   graphics_context_set_stroke_width(ctx, half_hour_tick ? 2 : 1);
   graphics_draw_line(ctx, prv_point_on_circle(centre, radius, angle),
                      prv_point_on_circle(centre, radius - length, angle));
@@ -45,7 +49,7 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
 
   graphics_context_set_fill_color(ctx, prv_navy());
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_stroke_color(ctx, prv_detail());
   graphics_context_set_stroke_width(ctx, 1);
   graphics_draw_circle(ctx, centre, outer_radius);
 
@@ -56,7 +60,7 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
                   half_hour_tick);
   }
 
-  graphics_context_set_text_color(ctx, GColorWhite);
+  graphics_context_set_text_color(ctx, prv_detail());
   for (int hour = 1; hour <= HOURS_PER_DAY; hour++) {
     const int32_t angle = prv_dial_angle(hour * TRIG_MAX_ANGLE / HOURS_PER_DAY);
     GPoint point = prv_point_on_circle(centre, label_radius, angle);
@@ -75,7 +79,7 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
                      prv_point_on_circle(centre, tick_radius, hand_angle));
   graphics_context_set_fill_color(ctx, prv_copper());
   graphics_fill_circle(ctx, centre, 8);
-  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_stroke_color(ctx, prv_detail());
   graphics_context_set_stroke_width(ctx, 1);
   graphics_draw_circle(ctx, centre, 8);
 }
@@ -163,10 +167,10 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
 
   graphics_context_set_fill_color(ctx, prv_navy());
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_stroke_color(ctx, prv_detail());
   graphics_context_set_stroke_width(ctx, 1);
   graphics_draw_rect(ctx, GRect(1, 1, bounds.size.w - 2, bounds.size.h - 2));
-  graphics_context_set_text_color(ctx, GColorWhite);
+  graphics_context_set_text_color(ctx, prv_detail());
 
   for (int tick = 0; tick < HOURS_PER_DAY * TICKS_PER_HOUR; tick++) {
     const int32_t angle =
@@ -224,7 +228,7 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
                      prv_point_on_circle(centre, hand_radius, hand_angle));
   graphics_context_set_fill_color(ctx, prv_copper());
   graphics_fill_circle(ctx, centre, 7);
-  graphics_context_set_stroke_color(ctx, GColorWhite);
+  graphics_context_set_stroke_color(ctx, prv_detail());
   graphics_context_set_stroke_width(ctx, 1);
   graphics_draw_circle(ctx, centre, 7);
 }
