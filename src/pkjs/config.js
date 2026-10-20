@@ -9,7 +9,8 @@ module.exports = [
     label: 'Dial',
     defaultValue: 'classic',
     options: [
-      { label: 'Classic', value: 'classic' }
+      { label: 'Classic', value: 'classic' },
+      { label: 'Double', value: 'double' }
     ]
   },
   {

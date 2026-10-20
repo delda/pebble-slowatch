@@ -20,6 +20,8 @@ static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
   if (dial_tuple != NULL && dial_tuple->type == TUPLE_CSTRING) {
     if (strcmp(dial_tuple->value->cstring, "classic") == 0) {
       settings_set_dial(DIAL_CLASSIC);
+    } else if (strcmp(dial_tuple->value->cstring, "double") == 0) {
+      settings_set_dial(DIAL_DOUBLE);
     }
   }
 
@@ -50,6 +52,7 @@ static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
 }
 
 static void prv_window_load(Window *window) {
+  watch_face_init();
   Layer *root_layer = window_get_root_layer(window);
   s_face_layer = layer_create(layer_get_bounds(root_layer));
   layer_set_update_proc(s_face_layer, prv_face_layer_update);
@@ -58,6 +61,7 @@ static void prv_window_load(Window *window) {
 
 static void prv_window_unload(Window *window) {
   layer_destroy(s_face_layer);
+  watch_face_deinit();
 }
 
 static void prv_init(void) {

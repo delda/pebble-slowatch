@@ -46,6 +46,12 @@
     "resources": {
       "media": [
         {
+          "file": "fonts/RobotoCondensed-Bold.ttf",
+          "name": "FONT_ROBOTO_CONDENSED_BOLD_14",
+          "type": "font",
+          "characterRegex": "[0-9]"
+        },
+        {
           "file": "images/slowatch.png",
           "menuIcon": true,
           "name": "MENU_ICON",

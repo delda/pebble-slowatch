@@ -24,7 +24,7 @@ static void prv_notify_changed(void) {
 }
 
 void settings_set_dial(Dial dial) {
-  if (dial != DIAL_CLASSIC || dial == s_dial) {
+  if ((dial != DIAL_CLASSIC && dial != DIAL_DOUBLE) || dial == s_dial) {
     return;
   }
 
@@ -125,7 +125,7 @@ void settings_init(SettingsChangedHandler changed_handler) {
   s_dial = DIAL_CLASSIC;
   if (persist_exists(PERSIST_KEY_DIAL)) {
     const int stored_dial = persist_read_int(PERSIST_KEY_DIAL);
-    if (stored_dial == DIAL_CLASSIC) {
+    if (stored_dial == DIAL_CLASSIC || stored_dial == DIAL_DOUBLE) {
       s_dial = (Dial)stored_dial;
     }
   }

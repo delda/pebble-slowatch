@@ -32,8 +32,11 @@ wscript          Build rules — usually no need to edit
 ```
 
 `src/c/watch_face.c` selects the configured dial for drawing and its background
-color. The Classic dial lives in `src/c/faces/classic.c`, including its variants
-for all supported platforms. Add future dials under `src/c/faces/` and register
+color. Classic (`src/c/faces/classic.c`) and Double (`src/c/faces/double.c`) share
+the layout in `src/c/faces/classic_layout.c` for all supported platforms. Double
+replaces each long mark with two aligned short marks separated by a gap. Each
+segment uses the platform's normal short-mark length; number positions
+are identical to Classic. Add future dials under `src/c/faces/` and register
 them in the settings, configuration, and `watch_face.c` selection.
 
 By default this project is configured as a watchapp. To make it a watchface,
