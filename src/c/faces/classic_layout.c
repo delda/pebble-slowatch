@@ -15,6 +15,15 @@ void classic_layout_deinit(void) {
   s_label_font = NULL;
 }
 
+static void prv_draw_hour_label(GContext *ctx, int hour, GPoint point, bool double_dial) {
+  char label[3];
+  snprintf(label, sizeof(label), "%d", hour % HOURS_PER_DAY);
+  const GFont font = double_dial ? s_label_font : fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+  graphics_draw_text(ctx, label, font,
+                     GRect(point.x - 10, point.y - 8, 20, double_dial ? 18 : 16),
+                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+}
+
 static GColor prv_navy(void) {
   return GColorFromHEX(settings_background_color());
 }
@@ -87,11 +96,7 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
   for (int hour = 1; hour <= HOURS_PER_DAY; hour++) {
     const int32_t angle = prv_dial_angle(hour * TRIG_MAX_ANGLE / HOURS_PER_DAY);
     GPoint point = prv_point_on_circle(centre, label_radius, angle);
-    char label[3];
-    snprintf(label, sizeof(label), "%d", hour % HOURS_PER_DAY);
-    graphics_draw_text(ctx, label, s_label_font,
-                       GRect(point.x - 10, point.y - 8, 20, 18),
-                       GTextOverflowModeFill, GTextAlignmentCenter, NULL);
+    prv_draw_hour_label(ctx, hour, point, split_long_ticks);
   }
 
   const int32_t hand_angle =
@@ -159,14 +164,6 @@ static GPoint prv_flint_label_offset(int hour) {
   }
 
   return GPoint(0, 0);
-}
-
-static void prv_draw_flint_label(GContext *ctx, int hour, GPoint point) {
-  char label[3];
-  snprintf(label, sizeof(label), "%d", hour % HOURS_PER_DAY);
-  graphics_draw_text(ctx, label, s_label_font,
-                     GRect(point.x - 10, point.y - 8, 20, 18),
-                     GTextOverflowModeFill, GTextAlignmentCenter, NULL);
 }
 
 static int prv_flint_label_position(int hour) {
@@ -286,7 +283,7 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time,
     const GPoint label_offset = prv_flint_label_offset(prv_flint_label_position(hour));
     label_point.x += label_offset.x;
     label_point.y += label_offset.y;
-    prv_draw_flint_label(ctx, hour, label_point);
+    prv_draw_hour_label(ctx, hour, label_point, split_long_ticks);
   }
 
   const int32_t hand_angle =
