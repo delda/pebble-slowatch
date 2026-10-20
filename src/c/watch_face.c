@@ -36,10 +36,10 @@ static void prv_draw_tick(GContext *ctx, GPoint centre, int16_t radius,
   const bool half_hour_tick = (tick % TICKS_PER_HOUR) == TICKS_PER_HOUR / 2;
 #if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
   const int16_t length = half_hour_tick ? 20 : 4;
-  const int16_t stroke_width = half_hour_tick || tick % TICKS_PER_HOUR == 0 ? 2 : 1;
+  const int16_t stroke_width = tick % TICKS_PER_HOUR == 0 ? 2 : 1;
 #else
   const int16_t length = half_hour_tick ? 9 : 4;
-  const int16_t stroke_width = half_hour_tick ? 2 : 1;
+  const int16_t stroke_width = 1;
 #endif
   graphics_context_set_stroke_color(ctx, prv_detail());
   graphics_context_set_stroke_width(ctx, stroke_width);
@@ -195,16 +195,16 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
     const bool corner_tick = tick == 10 || tick == 38 || tick == 58 || tick == 86;
 #if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_FLINT)
     // Scale Emery's lengths by the screen width ratio (144 / 200), rounding
-    // to whole pixels. Keep the 2 px emphasis on major and central marks.
+    // to whole pixels.
     const int16_t emery_tick_length = half_hour_tick ? (corner_tick ? 24 : 20) : 4;
     const int16_t tick_length = (emery_tick_length * 144 + 100) / 200;
 #else
     const int16_t tick_length = half_hour_tick ? (corner_tick ? 24 : 20) : 4;
 #endif
-    const int16_t stroke_width = half_hour_tick || tick % TICKS_PER_HOUR == 0 ? 2 : 1;
+    const int16_t stroke_width = tick % TICKS_PER_HOUR == 0 ? 2 : 1;
 #else
     const int16_t tick_length = half_hour_tick ? 9 : 4;
-    const int16_t stroke_width = half_hour_tick ? 2 : 1;
+    const int16_t stroke_width = 1;
 #endif
     const GPoint outer_point = prv_point_on_rectangle(centre, tick_half_width,
                                                        tick_half_height, angle);
