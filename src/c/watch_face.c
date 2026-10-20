@@ -29,12 +29,20 @@ static GPoint prv_point_on_circle(GPoint centre, int16_t radius, int32_t angle) 
 }
 
 #if !defined(PBL_PLATFORM_APLITE) && !defined(PBL_PLATFORM_BASALT) && \
-    !defined(PBL_PLATFORM_FLINT) && !defined(PBL_PLATFORM_DIORITE)
+    !defined(PBL_PLATFORM_EMERY) && !defined(PBL_PLATFORM_FLINT) && \
+    !defined(PBL_PLATFORM_DIORITE)
 static void prv_draw_tick(GContext *ctx, GPoint centre, int16_t radius,
-                          int32_t angle, bool half_hour_tick) {
+                          int32_t angle, int tick) {
+  const bool half_hour_tick = (tick % TICKS_PER_HOUR) == TICKS_PER_HOUR / 2;
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
+  const int16_t length = half_hour_tick ? 20 : 4;
+  const int16_t stroke_width = half_hour_tick || tick % TICKS_PER_HOUR == 0 ? 2 : 1;
+#else
   const int16_t length = half_hour_tick ? 9 : 4;
+  const int16_t stroke_width = half_hour_tick ? 2 : 1;
+#endif
   graphics_context_set_stroke_color(ctx, prv_detail());
-  graphics_context_set_stroke_width(ctx, half_hour_tick ? 2 : 1);
+  graphics_context_set_stroke_width(ctx, stroke_width);
   graphics_draw_line(ctx, prv_point_on_circle(centre, radius, angle),
                      prv_point_on_circle(centre, radius - length, angle));
 }
@@ -54,10 +62,9 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
   graphics_draw_circle(ctx, centre, outer_radius);
 
   for (int tick = 0; tick < HOURS_PER_DAY * TICKS_PER_HOUR; tick++) {
-    const bool half_hour_tick = (tick % TICKS_PER_HOUR) == TICKS_PER_HOUR / 2;
     prv_draw_tick(ctx, centre, tick_radius,
                   prv_dial_angle(tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * TICKS_PER_HOUR)),
-                  half_hour_tick);
+                  tick);
   }
 
   graphics_context_set_text_color(ctx, prv_detail());
@@ -65,7 +72,7 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
     const int32_t angle = prv_dial_angle(hour * TRIG_MAX_ANGLE / HOURS_PER_DAY);
     GPoint point = prv_point_on_circle(centre, label_radius, angle);
     char label[3];
-    snprintf(label, sizeof(label), "%d", hour);
+    snprintf(label, sizeof(label), "%d", hour % HOURS_PER_DAY);
     graphics_draw_text(ctx, label, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD),
                        GRect(point.x - 10, point.y - 8, 20, 16),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -86,7 +93,8 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
 #endif
 
 #if defined(PBL_PLATFORM_APLITE) || defined(PBL_PLATFORM_BASALT) || \
-    defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_DIORITE)
+    defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_FLINT) || \
+    defined(PBL_PLATFORM_DIORITE)
 static GPoint prv_point_on_rectangle(GPoint centre, int16_t half_width,
                                      int16_t half_height, int32_t angle) {
   const int32_t sine = sin_lookup(angle);
@@ -139,7 +147,7 @@ static GPoint prv_flint_label_offset(int hour) {
 
 static void prv_draw_flint_label(GContext *ctx, int hour, GPoint point) {
   char label[3];
-  snprintf(label, sizeof(label), "%d", hour);
+  snprintf(label, sizeof(label), "%d", hour % HOURS_PER_DAY);
   graphics_draw_text(ctx, label, fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD),
                      GRect(point.x - 10, point.y - 8, 20, 16),
                      GTextOverflowModeFill, GTextAlignmentCenter, NULL);
@@ -156,7 +164,11 @@ static int prv_flint_label_position(int hour) {
 }
 
 static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
+#if defined(PBL_PLATFORM_FLINT)
+  const int16_t label_inset = 13;
+#else
   const int16_t label_inset = 15;
+#endif
   const int16_t smallest_side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
   const int16_t hand_radius = smallest_side / 2 - 28;
   const GPoint centre = grect_center_point(&bounds);
@@ -176,12 +188,29 @@ static void prv_draw_flint_face(GContext *ctx, GRect bounds, ClockTime time) {
     const int32_t angle =
         prv_dial_angle(tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * TICKS_PER_HOUR));
     const bool half_hour_tick = (tick % TICKS_PER_HOUR) == TICKS_PER_HOUR / 2;
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_BASALT) || \
+    defined(PBL_PLATFORM_FLINT)
+    // The half-hour marks nearest the four corners are at 37.5 degrees
+    // and their reflections across the dial's horizontal and vertical axes.
+    const bool corner_tick = tick == 10 || tick == 38 || tick == 58 || tick == 86;
+#if defined(PBL_PLATFORM_BASALT) || defined(PBL_PLATFORM_FLINT)
+    // Scale Emery's lengths by the screen width ratio (144 / 200), rounding
+    // to whole pixels. Keep the 2 px emphasis on major and central marks.
+    const int16_t emery_tick_length = half_hour_tick ? (corner_tick ? 24 : 20) : 4;
+    const int16_t tick_length = (emery_tick_length * 144 + 100) / 200;
+#else
+    const int16_t tick_length = half_hour_tick ? (corner_tick ? 24 : 20) : 4;
+#endif
+    const int16_t stroke_width = half_hour_tick || tick % TICKS_PER_HOUR == 0 ? 2 : 1;
+#else
     const int16_t tick_length = half_hour_tick ? 9 : 4;
+    const int16_t stroke_width = half_hour_tick ? 2 : 1;
+#endif
     const GPoint outer_point = prv_point_on_rectangle(centre, tick_half_width,
                                                        tick_half_height, angle);
     const GPoint inner_point = prv_point_on_rectangle(centre, tick_half_width - tick_length,
                                                        tick_half_height - tick_length, angle);
-    graphics_context_set_stroke_width(ctx, half_hour_tick ? 2 : 1);
+    graphics_context_set_stroke_width(ctx, stroke_width);
     graphics_draw_line(ctx, outer_point, inner_point);
   }
 
@@ -258,7 +287,8 @@ void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
 #elif defined(PBL_PLATFORM_GABBRO)
   prv_draw_gabbro_face(ctx, bounds, time);
 #elif defined(PBL_PLATFORM_APLITE) || defined(PBL_PLATFORM_BASALT) || \
-    defined(PBL_PLATFORM_FLINT) || defined(PBL_PLATFORM_DIORITE)
+    defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_FLINT) || \
+    defined(PBL_PLATFORM_DIORITE)
   prv_draw_flint_face(ctx, bounds, time);
 #else
   prv_draw_dial(ctx, bounds, time, 5, 12);
