@@ -40,7 +40,8 @@
     },
     "messageKeys": [
       "midnight_position",
-      "color_layout"
+      "color_layout",
+      "dial"
     ],
     "resources": {
       "media": [

@@ -13,6 +13,10 @@ readonly PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly APP_FILE="$PROJECT_DIR/build/pebble-slowatch.pbw"
 # Override when the emulator is already responsive, e.g. TIME_SETTLE_SECONDS=1.
 readonly TIME_SETTLE_SECONDS="${TIME_SETTLE_SECONDS:-2}"
+# Generated from package.json: midnight_position=10000, color_layout=10001.
+readonly COLOR_LAYOUT_MESSAGE_KEY=10001
+readonly -a COLOR_LAYOUTS=(snow vanilla meadow sand sun mint sky forest default night)
+readonly -a MONOCHROME_PLATFORMS=(aplite diorite flint)
 # Flint's screenshot service stops responding on its 19th transfer in the same
 # QEMU session. Leave one transfer of headroom and restart after 18 captures.
 # Restarting periodically also keeps longer captures reliable on the other
@@ -167,11 +171,35 @@ set_emulator_time() {
   return 1
 }
 
+set_color_layout() {
+  local platform="$1"
+  local layout="$2"
+  local attempt
+
+  for attempt in 1 2 3; do
+    if pebble send-app-message --emulator "$platform" \
+        --string "$COLOR_LAYOUT_MESSAGE_KEY=$layout"; then
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "Unable to set the $layout color layout on $platform after three attempts." >&2
+  return 1
+}
+
 capture_platform() {
   local platform="$1"
   local output_dir="$PROJECT_DIR/resources/images/screenshots/$platform/time-demo"
-  local time frame
+  local color_index color_count index time layout frame
+  local screenshots_per_color remaining_for_color
+  local -a platform_color_layouts
   local capture_count=0
+
+  platform_color_layouts=("${COLOR_LAYOUTS[@]}")
+  if [[ " ${MONOCHROME_PLATFORMS[*]} " == *" $platform "* ]]; then
+    platform_color_layouts=(vanilla meadow sun sky forest default night)
+  fi
 
   mkdir -p "$output_dir"
   rm -f "$output_dir"/time-*.png
@@ -181,29 +209,45 @@ capture_platform() {
   # Return to the watchface if a diagnostic overlay is visible.
   pebble emu-button --emulator "$platform" click back || true
 
-  for time in "${TIMES[@]}"; do
-    frame="$output_dir/time-${time//:/-}.png"
+  screenshots_per_color=$(( ${#TIMES[@]} / ${#platform_color_layouts[@]} ))
+  color_count=$(( ${#TIMES[@]} % ${#platform_color_layouts[@]} ))
+  index=0
 
-    # The Flint emulator hangs on screenshot number 19 in a QEMU session.
-    # Start a fresh session before reaching that limit, then restore the app
-    # and requested time below.
-    if (( capture_count > 0 && capture_count % MAX_SCREENSHOTS_PER_EMULATOR_SESSION == 0 )); then
-      stop_emulator
-      start_emulator "$platform"
-      install_watchface "$platform"
-      pebble emu-button --emulator "$platform" click back || true
+  for color_index in "${!platform_color_layouts[@]}"; do
+    layout="${platform_color_layouts[$color_index]}"
+    remaining_for_color="$screenshots_per_color"
+    if (( color_index < color_count )); then
+      ((remaining_for_color += 1))
     fi
+    set_color_layout "$platform" "$layout"
 
-    set_emulator_time "$platform" "$time"
-    # The watchface redraws on the next minute tick after a time change.
-    sleep "$TIME_SETTLE_SECONDS"
-    capture_screenshot "$platform" "$frame"
-    ((capture_count += 1))
+    for (( ; remaining_for_color > 0; remaining_for_color-- )); do
+      time="${TIMES[$index]}"
+      frame="$output_dir/time-${time//:/-}-$layout.png"
+
+      # The Flint emulator hangs on screenshot number 19 in a QEMU session.
+      # Start a fresh session before reaching that limit, then restore the app,
+      # color, and requested time below.
+      if (( capture_count > 0 && capture_count % MAX_SCREENSHOTS_PER_EMULATOR_SESSION == 0 )); then
+        stop_emulator
+        start_emulator "$platform"
+        install_watchface "$platform"
+        pebble emu-button --emulator "$platform" click back || true
+        set_color_layout "$platform" "$layout"
+      fi
+
+      set_emulator_time "$platform" "$time"
+      # The watchface redraws on the next minute tick after a time change.
+      sleep "$TIME_SETTLE_SECONDS"
+      capture_screenshot "$platform" "$frame"
+      ((capture_count += 1))
+      ((index += 1))
+    done
   done
 
   create_time_demo_gif "$output_dir"
   stop_emulator
-  echo "Created screenshots and $output_dir/time-demo.gif"
+  echo "Created ${#TIMES[@]} screenshots across ${#platform_color_layouts[@]} color layouts and $output_dir/time-demo.gif"
 }
 
 trap stop_emulator EXIT

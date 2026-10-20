@@ -6,8 +6,10 @@ enum {
   PERSIST_KEY_HAND_COLOR = 3,
   PERSIST_KEY_DETAIL_COLOR = 4,
   PERSIST_KEY_COLOR_LAYOUT = 5,
+  PERSIST_KEY_DIAL = 6,
 };
 
+static Dial s_dial;
 static MidnightPosition s_midnight_position;
 static uint32_t s_background_color;
 static uint32_t s_hand_color;
@@ -19,6 +21,16 @@ static void prv_notify_changed(void) {
   if (s_changed_handler != NULL) {
     s_changed_handler();
   }
+}
+
+void settings_set_dial(Dial dial) {
+  if (dial != DIAL_CLASSIC || dial == s_dial) {
+    return;
+  }
+
+  s_dial = dial;
+  persist_write_int(PERSIST_KEY_DIAL, dial);
+  prv_notify_changed();
 }
 
 void settings_set_midnight_position(MidnightPosition position) {
@@ -110,6 +122,13 @@ static void prv_apply_color_layout(ColorLayout layout) {
 
 void settings_init(SettingsChangedHandler changed_handler) {
   s_changed_handler = changed_handler;
+  s_dial = DIAL_CLASSIC;
+  if (persist_exists(PERSIST_KEY_DIAL)) {
+    const int stored_dial = persist_read_int(PERSIST_KEY_DIAL);
+    if (stored_dial == DIAL_CLASSIC) {
+      s_dial = (Dial)stored_dial;
+    }
+  }
   s_midnight_position = MIDNIGHT_POSITION_BOTTOM;
   s_background_color = 0x062D54;
   s_hand_color = 0xC98858;
@@ -147,6 +166,10 @@ void settings_deinit(void) {
 
 MidnightPosition settings_midnight_position(void) {
   return s_midnight_position;
+}
+
+Dial settings_dial(void) {
+  return s_dial;
 }
 
 uint32_t settings_background_color(void) {

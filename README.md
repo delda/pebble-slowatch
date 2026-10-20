@@ -23,12 +23,18 @@ rectangular 200×228 layout.
 
 ```
 src/c/           C source for the watchapp
+src/c/faces/     Dial implementations, including platform-specific layouts
 src/pkjs/        PebbleKit JS (phone-side) source, if any
 worker_src/c/    Background worker source, if any
 resources/       Images, fonts, and other bundled resources
 package.json     Project metadata (UUID, platforms, resources, message keys)
 wscript          Build rules — usually no need to edit
 ```
+
+`src/c/watch_face.c` selects the configured dial for drawing and its background
+color. The Classic dial lives in `src/c/faces/classic.c`, including its variants
+for all supported platforms. Add future dials under `src/c/faces/` and register
+them in the settings, configuration, and `watch_face.c` selection.
 
 By default this project is configured as a watchapp. To make it a watchface,
 set `pebble.watchapp.watchface` to `true` in `package.json`.

@@ -16,6 +16,13 @@ static void prv_clock_updated(void) {
 }
 
 static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
+  Tuple *dial_tuple = dict_find(iterator, MESSAGE_KEY_dial);
+  if (dial_tuple != NULL && dial_tuple->type == TUPLE_CSTRING) {
+    if (strcmp(dial_tuple->value->cstring, "classic") == 0) {
+      settings_set_dial(DIAL_CLASSIC);
+    }
+  }
+
   Tuple *layout_tuple = dict_find(iterator, MESSAGE_KEY_color_layout);
   if (layout_tuple != NULL && layout_tuple->type == TUPLE_CSTRING) {
     const char *layout = layout_tuple->value->cstring;

@@ -5,6 +5,15 @@ module.exports = [
   },
   {
     type: 'radiogroup',
+    messageKey: 'dial',
+    label: 'Dial',
+    defaultValue: 'classic',
+    options: [
+      { label: 'Classic', value: 'classic' }
+    ]
+  },
+  {
+    type: 'radiogroup',
     messageKey: 'color_layout',
     label: 'Color layout',
     defaultValue: 'default',
