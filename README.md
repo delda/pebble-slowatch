@@ -42,6 +42,13 @@ them in the settings, configuration, and `watch_face.c` selection.
 By default this project is configured as a watchapp. To make it a watchface,
 set `pebble.watchapp.watchface` to `true` in `package.json`.
 
+## Configuration
+
+Use the Pebble app's settings screen to choose whether midnight is at the top
+or bottom. The Clay configuration is defined in `src/pkjs/config.js` and
+loaded by `src/pkjs/app.js`. The preference is saved on the watch and
+immediately rotates the hour labels, ticks, and hand to match.
+
 ## Documentation
 
 Full SDK docs, tutorials, and API reference: <https://developer.repebble.com>

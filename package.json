@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/delda/pebble-slowatch/issues"
   },
-  "version": "1.3.0",
+  "version": "1.7.0",
   "keywords": [
     "pebble-app"
   ],
@@ -38,6 +38,9 @@
     "watchapp": {
       "watchface": true
     },
+    "capabilities": [
+      "configurable"
+    ],
     "messageKeys": [
       "midnight_position",
       "color_layout",

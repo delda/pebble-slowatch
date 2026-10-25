@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include <string.h>
 
 #include "clock.h"
 #include "settings.h"
@@ -12,6 +13,11 @@ static void prv_face_layer_update(Layer *layer, GContext *ctx) {
 }
 
 static void prv_clock_updated(void) {
+  layer_mark_dirty(s_face_layer);
+}
+
+static void prv_settings_updated(void) {
+  window_set_background_color(s_window, watch_face_background_color());
   layer_mark_dirty(s_face_layer);
 }
 
@@ -65,7 +71,7 @@ static void prv_window_unload(Window *window) {
 }
 
 static void prv_init(void) {
-  settings_init(prv_clock_updated);
+  settings_init(prv_settings_updated);
   s_window = window_create();
   window_set_background_color(s_window, watch_face_background_color());
   window_set_window_handlers(s_window, (WindowHandlers) {
@@ -79,8 +85,9 @@ static void prv_init(void) {
 }
 
 static void prv_deinit(void) {
-  settings_deinit();
   clock_deinit();
+  app_message_deregister_callbacks();
+  settings_deinit();
   window_destroy(s_window);
 }
 
