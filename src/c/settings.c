@@ -18,7 +18,7 @@ static ColorLayout s_color_layout;
 static SettingsChangedHandler s_changed_handler;
 
 static bool prv_dial_supported(Dial dial) {
-#if defined(PBL_PLATFORM_GABBRO)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
   if (dial == DIAL_PERIMETER) return true;
 #endif
   return dial == DIAL_CLASSIC || dial == DIAL_DOUBLE;

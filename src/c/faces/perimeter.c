@@ -2,7 +2,7 @@
 
 #include "../settings.h"
 
-#if defined(PBL_PLATFORM_GABBRO)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
 static int32_t prv_angle(int32_t angle) {
   if (settings_midnight_position() == MIDNIGHT_POSITION_BOTTOM) {
     angle += TRIG_MAX_ANGLE / 2;
@@ -21,6 +21,19 @@ void perimeter_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   const int16_t side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
   const int16_t label_radius = side / 2 - 9;
   const int16_t tick_radius = side / 2 - 18;
+#if defined(PBL_PLATFORM_CHALK)
+  const int16_t tick_length = 5;
+  const int16_t hour_stroke = 2;
+  const int16_t hand_stroke = 3;
+  const int16_t hand_tail = 12;
+  const int16_t hub_radius = 5;
+#else
+  const int16_t tick_length = 7;
+  const int16_t hour_stroke = 3;
+  const int16_t hand_stroke = 4;
+  const int16_t hand_tail = 18;
+  const int16_t hub_radius = 7;
+#endif
   const GColor detail = GColorFromHEX(settings_detail_color());
   const GColor hand = GColorFromHEX(settings_hand_color());
 
@@ -41,21 +54,21 @@ void perimeter_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   graphics_context_set_stroke_color(ctx, detail);
   for (int tick = 0; tick < HOURS_PER_DAY * 4; tick++) {
     const int32_t angle = prv_angle(tick * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 4));
-    graphics_context_set_stroke_width(ctx, tick % 4 == 0 ? 3 : 1);
+    graphics_context_set_stroke_width(ctx, tick % 4 == 0 ? hour_stroke : 1);
     graphics_draw_line(ctx, prv_point(centre, tick_radius, angle),
-                       prv_point(centre, tick_radius - 7, angle));
+                       prv_point(centre, tick_radius - tick_length, angle));
   }
 
   const int32_t hand_angle = prv_angle(
       time.minutes_today * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 60));
   graphics_context_set_stroke_color(ctx, hand);
-  graphics_context_set_stroke_width(ctx, 4);
-  graphics_draw_line(ctx, prv_point(centre, 18, hand_angle + TRIG_MAX_ANGLE / 2),
-                     prv_point(centre, tick_radius - 9, hand_angle));
+  graphics_context_set_stroke_width(ctx, hand_stroke);
+  graphics_draw_line(ctx, prv_point(centre, hand_tail, hand_angle + TRIG_MAX_ANGLE / 2),
+                     prv_point(centre, tick_radius - tick_length - 2, hand_angle));
   graphics_context_set_fill_color(ctx, hand);
-  graphics_fill_circle(ctx, centre, 7);
+  graphics_fill_circle(ctx, centre, hub_radius);
   graphics_context_set_stroke_color(ctx, detail);
   graphics_context_set_stroke_width(ctx, 1);
-  graphics_draw_circle(ctx, centre, 7);
+  graphics_draw_circle(ctx, centre, hub_radius);
 }
 #endif

@@ -11,7 +11,7 @@ module.exports = [
     options: [
       { label: 'Classic', value: 'classic' },
       { label: 'Double', value: 'double' },
-      { label: 'Perimeter (Gabbro)', value: 'perimeter' }
+      { label: 'Perimeter', value: 'perimeter' }
     ]
   },
   {

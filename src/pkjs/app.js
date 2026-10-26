@@ -1,7 +1,8 @@
 var Clay = require('@rebble/clay');
 var config = require('./config');
 
-if (Pebble.getActiveWatchInfo().platform !== 'gabbro') {
+var platform = Pebble.getActiveWatchInfo().platform;
+if (platform !== 'gabbro' && platform !== 'chalk') {
   config.forEach(function(item) {
     if (item.messageKey === 'dial') {
       item.options = item.options.filter(function(option) {
