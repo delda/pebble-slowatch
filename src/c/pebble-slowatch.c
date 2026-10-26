@@ -28,6 +28,8 @@ static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
       settings_set_dial(DIAL_CLASSIC);
     } else if (strcmp(dial_tuple->value->cstring, "double") == 0) {
       settings_set_dial(DIAL_DOUBLE);
+    } else if (strcmp(dial_tuple->value->cstring, "perimeter") == 0) {
+      settings_set_dial(DIAL_PERIMETER);
     }
   }
 

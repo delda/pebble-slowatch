@@ -39,6 +39,11 @@ segment uses the platform's normal short-mark length; number positions
 are identical to Classic. Add future dials under `src/c/faces/` and register
 them in the settings, configuration, and `watch_face.c` selection.
 
+Gabbro also offers **Perimeter** (`src/c/faces/perimeter.c`): numbers 0–23
+sit near the edge, with 96 quarter-hour marks on an inner ring. The 24 marks
+at the start of each hour use a thicker stroke. Select Perimeter in the dial
+settings; it supports all color layouts and either midnight position.
+
 By default this project is configured as a watchapp. To make it a watchface,
 set `pebble.watchapp.watchface` to `true` in `package.json`.
 

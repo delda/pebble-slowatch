@@ -10,7 +10,8 @@ module.exports = [
     defaultValue: 'classic',
     options: [
       { label: 'Classic', value: 'classic' },
-      { label: 'Double', value: 'double' }
+      { label: 'Double', value: 'double' },
+      { label: 'Perimeter (Gabbro)', value: 'perimeter' }
     ]
   },
   {

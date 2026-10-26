@@ -17,6 +17,13 @@ static uint32_t s_detail_color;
 static ColorLayout s_color_layout;
 static SettingsChangedHandler s_changed_handler;
 
+static bool prv_dial_supported(Dial dial) {
+#if defined(PBL_PLATFORM_GABBRO)
+  if (dial == DIAL_PERIMETER) return true;
+#endif
+  return dial == DIAL_CLASSIC || dial == DIAL_DOUBLE;
+}
+
 static void prv_notify_changed(void) {
   if (s_changed_handler != NULL) {
     s_changed_handler();
@@ -24,7 +31,7 @@ static void prv_notify_changed(void) {
 }
 
 void settings_set_dial(Dial dial) {
-  if ((dial != DIAL_CLASSIC && dial != DIAL_DOUBLE) || dial == s_dial) {
+  if (!prv_dial_supported(dial) || dial == s_dial) {
     return;
   }
 
@@ -125,7 +132,7 @@ void settings_init(SettingsChangedHandler changed_handler) {
   s_dial = DIAL_CLASSIC;
   if (persist_exists(PERSIST_KEY_DIAL)) {
     const int stored_dial = persist_read_int(PERSIST_KEY_DIAL);
-    if (stored_dial == DIAL_CLASSIC || stored_dial == DIAL_DOUBLE) {
+    if (prv_dial_supported((Dial)stored_dial)) {
       s_dial = (Dial)stored_dial;
     }
   }

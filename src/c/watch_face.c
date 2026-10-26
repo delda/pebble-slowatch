@@ -3,6 +3,7 @@
 #include "faces/classic.h"
 #include "faces/classic_layout.h"
 #include "faces/double.h"
+#include "faces/perimeter.h"
 #include "settings.h"
 
 void watch_face_init(void) {
@@ -25,6 +26,11 @@ GColor watch_face_background_color(void) {
 
 void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   switch (settings_dial()) {
+#if defined(PBL_PLATFORM_GABBRO)
+    case DIAL_PERIMETER:
+      perimeter_face_draw(layer, ctx, time);
+      break;
+#endif
     case DIAL_DOUBLE:
       double_face_draw(layer, ctx, time);
       break;
