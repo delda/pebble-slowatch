@@ -26,7 +26,8 @@ GColor watch_face_background_color(void) {
 
 void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   switch (settings_dial()) {
-#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK) || \
+    defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_BASALT)
     case DIAL_PERIMETER:
       perimeter_face_draw(layer, ctx, time);
       break;

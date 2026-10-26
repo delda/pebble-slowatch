@@ -39,11 +39,14 @@ segment uses the platform's normal short-mark length; number positions
 are identical to Classic. Add future dials under `src/c/faces/` and register
 them in the settings, configuration, and `watch_face.c` selection.
 
-Gabbro and Chalk also offer **Perimeter** (`src/c/faces/perimeter.c`): numbers 0–23
+Gabbro, Chalk, Emery and Basalt also offer **Perimeter** (`src/c/faces/perimeter.c`): numbers 0–23
 sit near the edge, with 96 quarter-hour marks on an inner ring. The 24 marks
 at the start of each hour use a thicker stroke. Select Perimeter in the dial
 settings; it supports all color layouts and either midnight position. Chalk
 uses shorter marks and a slimmer hand to fit its smaller display.
+On Emery and Basalt, the numbers follow the rectangular screen edge and the quarter-hour
+marks sit on an inset rectangle, with thicker marks at the start of each hour.
+Basalt uses shorter marks and a slimmer hand for its 144×168 display.
 
 By default this project is configured as a watchapp. To make it a watchface,
 set `pebble.watchapp.watchface` to `true` in `package.json`.
