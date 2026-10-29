@@ -38,7 +38,8 @@ void settings_set_dial(Dial dial) {
 }
 
 void settings_set_midnight_position(MidnightPosition position) {
-  if (position == s_midnight_position) {
+  if ((position != MIDNIGHT_POSITION_TOP && position != MIDNIGHT_POSITION_BOTTOM) ||
+      position == s_midnight_position) {
     return;
   }
 
@@ -140,8 +141,8 @@ void settings_init(SettingsChangedHandler changed_handler) {
   s_color_layout = COLOR_LAYOUT_DEFAULT;
   if (persist_exists(PERSIST_KEY_MIDNIGHT_POSITION)) {
     const int stored_position = persist_read_int(PERSIST_KEY_MIDNIGHT_POSITION);
-    if (stored_position == MIDNIGHT_POSITION_BOTTOM) {
-      s_midnight_position = MIDNIGHT_POSITION_BOTTOM;
+    if (stored_position == MIDNIGHT_POSITION_TOP || stored_position == MIDNIGHT_POSITION_BOTTOM) {
+      s_midnight_position = (MidnightPosition)stored_position;
     }
   }
 

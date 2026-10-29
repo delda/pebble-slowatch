@@ -39,6 +39,13 @@ segment uses the platform's normal short-mark length; number positions
 are identical to Classic. Add future dials under `src/c/faces/` and register
 them in the settings, configuration, and `watch_face.c` selection.
 
+`src/c/faces/dial_geometry.c` shares the circle/rectangle geometry and midnight
+rotation between Classic, Double, and Perimeter.
+Device-specific insets, tick lengths, and hand dimensions are defined in
+`src/c/faces/layout_metrics.c`, with one metrics structure for Classic/Double
+and one for Perimeter. The drawing code only branches on round versus
+rectangular screens; platform-specific values are selected at compile time.
+
 All supported platforms offer **Perimeter** (`src/c/faces/perimeter.c`): numbers 0–23
 sit near the edge, with 96 quarter-hour marks on an inner ring. The 24 marks
 at the start of each hour use a thicker stroke. Select Perimeter in the dial
@@ -59,6 +66,16 @@ Use the Pebble app's settings screen to choose whether midnight is at the top
 or bottom. The Clay configuration is defined in `src/pkjs/config.js` and
 loaded by `src/pkjs/app.js`. The preference is saved on the watch and
 immediately rotates the hour labels, ticks, and hand to match.
+
+## Settings regression test
+
+Run the persistence checks on the host without the Pebble SDK:
+
+```sh
+cc -std=c99 -Wall -Wextra -Werror -Itests/stubs -Isrc/c \
+  tests/settings_test.c src/c/settings.c -o /tmp/slowatch-settings-test
+/tmp/slowatch-settings-test
+```
 
 ## Documentation
 
