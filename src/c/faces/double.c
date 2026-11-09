@@ -7,5 +7,5 @@ GColor double_face_background_color(void) {
 }
 
 void double_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
-  classic_layout_draw(layer, ctx, time, true);
+  classic_layout_draw(layer, ctx, time, CLASSIC_TICKS_SPLIT);
 }

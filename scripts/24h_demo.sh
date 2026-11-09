@@ -13,8 +13,9 @@ readonly PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly APP_FILE="$PROJECT_DIR/build/pebble-slowatch.pbw"
 # Override when the emulator is already responsive, e.g. TIME_SETTLE_SECONDS=1.
 readonly TIME_SETTLE_SECONDS="${TIME_SETTLE_SECONDS:-2}"
-# Generated from package.json: midnight_position=10000, color_layout=10001.
+# Generated from package.json: color_layout=10001, dial=10002.
 readonly COLOR_LAYOUT_MESSAGE_KEY=10001
+readonly DIAL_MESSAGE_KEY=10002
 readonly -a COLOR_LAYOUTS=(snow vanilla meadow sand sun mint sky forest default night)
 readonly -a MONOCHROME_PLATFORMS=(aplite diorite flint)
 # Flint's screenshot service stops responding on its 19th transfer in the same
@@ -178,7 +179,7 @@ set_color_layout() {
 
   for attempt in 1 2 3; do
     if pebble send-app-message --emulator "$platform" \
-        --string "$COLOR_LAYOUT_MESSAGE_KEY=$layout"; then
+        --string "$COLOR_LAYOUT_MESSAGE_KEY=$layout" "$DIAL_MESSAGE_KEY=classic"; then
       return 0
     fi
     sleep 1
@@ -191,7 +192,8 @@ set_color_layout() {
 capture_platform() {
   local platform="$1"
   local output_dir="$PROJECT_DIR/resources/images/screenshots/$platform/time-demo"
-  local color_index color_count index time layout frame
+  local color_index color_count index time layout frame frame_layout
+  local active_layout=""
   local screenshots_per_color remaining_for_color
   local -a platform_color_layouts
   local capture_count=0
@@ -219,11 +221,14 @@ capture_platform() {
     if (( color_index < color_count )); then
       ((remaining_for_color += 1))
     fi
-    set_color_layout "$platform" "$layout"
-
     for (( ; remaining_for_color > 0; remaining_for_color-- )); do
       time="${TIMES[$index]}"
-      frame="$output_dir/time-${time//:/-}-$layout.png"
+      frame_layout="$layout"
+      # Open with the default color, then resume the existing color cycle.
+      if (( index == 0 )); then
+        frame_layout=default
+      fi
+      frame="$output_dir/time-${time//:/-}-$frame_layout.png"
 
       # The Flint emulator hangs on screenshot number 19 in a QEMU session.
       # Start a fresh session before reaching that limit, then restore the app,
@@ -233,7 +238,12 @@ capture_platform() {
         start_emulator "$platform"
         install_watchface "$platform"
         pebble emu-button --emulator "$platform" click back || true
-        set_color_layout "$platform" "$layout"
+        active_layout=""
+      fi
+
+      if [[ "$active_layout" != "$frame_layout" ]]; then
+        set_color_layout "$platform" "$frame_layout"
+        active_layout="$frame_layout"
       fi
 
       set_emulator_time "$platform" "$time"

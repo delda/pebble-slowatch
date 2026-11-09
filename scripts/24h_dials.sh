@@ -21,7 +21,7 @@ readonly DIAL_MESSAGE_KEY=10002
 platform_list="$(python3 -c 'import json, sys; print("\n".join(json.load(open(sys.argv[1]))["pebble"]["targetPlatforms"]))' "$PROJECT_DIR/package.json")"
 mapfile -t SUPPORTED_PLATFORMS <<< "$platform_list"
 readonly -a SUPPORTED_PLATFORMS
-readonly -a DIALS=(classic double)
+readonly -a DIALS=(classic double perimeter)
 readonly -a POSITIONS=(bottom top)
 
 emulator_logs_pid=""
@@ -115,20 +115,23 @@ install_watchface() {
   return 1
 }
 
-send_setting() {
+send_settings() {
   local platform="$1"
-  local key="$2"
-  local value="$3"
+  local position="$2"
+  local dial="$3"
   local attempt
 
   for attempt in 1 2 3; do
-    if pebble send-app-message --emulator "$platform" --string "$key=$value"; then
+    if pebble send-app-message --emulator "$platform" --string \
+        "$MIDNIGHT_POSITION_MESSAGE_KEY=$position" \
+        "$COLOR_LAYOUT_MESSAGE_KEY=default" \
+        "$DIAL_MESSAGE_KEY=$dial"; then
       return 0
     fi
     sleep 1
   done
 
-  echo "Unable to set $value (message key $key) on $platform after three attempts." >&2
+  echo "Unable to set $dial with midnight at $position on $platform after three attempts." >&2
   return 1
 }
 
@@ -193,17 +196,15 @@ capture_platform() {
   start_emulator "$platform"
   install_watchface "$platform"
   pebble emu-button --emulator "$platform" click back || true
-  # Explicitly select the configured default palette instead of relying on
-  # whichever color layout may have been persisted by an earlier run.
-  send_setting "$platform" "$COLOR_LAYOUT_MESSAGE_KEY" default
   set_emulator_time "$platform"
   sleep "$TIME_SETTLE_SECONDS"
 
   for position in "${POSITIONS[@]}"; do
-    send_setting "$platform" "$MIDNIGHT_POSITION_MESSAGE_KEY" "$position"
     for dial in "${DIALS[@]}"; do
       echo "Capturing $dial dial with midnight at $position..." >&2
-      send_setting "$platform" "$DIAL_MESSAGE_KEY" "$dial"
+      # The CLI does not wait for an AppMessage ACK. Send the complete frame
+      # configuration together, then allow it to settle before capturing.
+      send_settings "$platform" "$position" "$dial"
       sleep "$TIME_SETTLE_SECONDS"
       capture_index=$((capture_index + 1))
       printf -v frame_number '%03d' "$capture_index"
@@ -214,7 +215,7 @@ capture_platform() {
 
   stop_emulator
   create_dials_gif "$output_dir"
-  echo "Created 4 dial screenshots and $output_dir/dials.gif"
+  echo "Created $capture_index dial screenshots and $output_dir/dials.gif"
 }
 
 trap stop_emulator EXIT

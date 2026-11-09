@@ -4,6 +4,7 @@
 #include "faces/classic_layout.h"
 #include "faces/double.h"
 #include "faces/perimeter.h"
+#include "faces/quarter.h"
 #include "settings.h"
 
 void watch_face_init(void) {
@@ -26,6 +27,9 @@ GColor watch_face_background_color(void) {
 
 void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   switch (settings_dial()) {
+    case DIAL_QUARTER:
+      quarter_face_draw(layer, ctx, time);
+      break;
     case DIAL_PERIMETER:
       perimeter_face_draw(layer, ctx, time);
       break;

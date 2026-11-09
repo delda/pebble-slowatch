@@ -18,7 +18,8 @@ static ColorLayout s_color_layout;
 static SettingsChangedHandler s_changed_handler;
 
 static bool prv_dial_supported(Dial dial) {
-  return dial == DIAL_CLASSIC || dial == DIAL_DOUBLE || dial == DIAL_PERIMETER;
+  return dial == DIAL_CLASSIC || dial == DIAL_DOUBLE || dial == DIAL_PERIMETER ||
+         dial == DIAL_QUARTER;
 }
 
 static void prv_notify_changed(void) {

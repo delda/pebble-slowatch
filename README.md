@@ -46,6 +46,16 @@ Device-specific insets, tick lengths, and hand dimensions are defined in
 and one for Perimeter. The drawing code only branches on round versus
 rectangular screens; platform-specific values are selected at compile time.
 
+**Quarter** (`src/c/faces/quarter.c`) keeps Classic's hand and shows the even hours
+using `FONT_KEY_GOTHIC_14_BOLD`: 00, 2, 4, ..., 22.
+It has 96 short, thin marks, one every 15 minutes. At each full hour, a second
+inner mark is twice as long, separated from the first by a half-length gap
+(rounded up to a whole pixel) plus 5 pixels. It shares the platform metrics and supports all
+color layouts and both midnight positions. The inner marks use a 2-pixel stroke.
+The four cardinal marks are continuous with the same 2-pixel stroke along their
+full length, bridging the gap without moving their inner endpoints.
+Select Quarter in the dial settings.
+
 All supported platforms offer **Perimeter** (`src/c/faces/perimeter.c`): numbers 0–23
 sit near the edge, with 96 quarter-hour marks on an inner ring. The 24 marks
 at the start of each hour use a thicker stroke. Select Perimeter in the dial
