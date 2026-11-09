@@ -46,8 +46,9 @@ Device-specific insets, tick lengths, and hand dimensions are defined in
 and one for Perimeter. The drawing code only branches on round versus
 rectangular screens; platform-specific values are selected at compile time.
 
-**Quarter** (`src/c/faces/quarter.c`) keeps Classic's hand and shows the even hours
-using `FONT_KEY_GOTHIC_14_BOLD`: 00, 2, 4, ..., 22.
+**Quarter** (`src/c/faces/quarter.c`) uses Perimeter's hand and shows the even hours
+using `FONT_KEY_GOTHIC_24_BOLD` on Gabbro and `FONT_KEY_GOTHIC_18_BOLD`
+on all other platforms: 00, 02, 04, ..., 22.
 It has 96 short, thin marks, one every 15 minutes. At each full hour, a second
 inner mark is twice as long, separated from the first by a half-length gap
 (rounded up to a whole pixel) plus 5 pixels. It shares the platform metrics and supports all

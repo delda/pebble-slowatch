@@ -14,7 +14,6 @@ void perimeter_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
 #endif
   const int16_t tick_radius = side / 2 - layout->hand_inset;
   const GColor detail = GColorFromHEX(settings_detail_color());
-  const GColor hand = PBL_IF_COLOR_ELSE(GColorFromHEX(settings_hand_color()), detail);
 
   graphics_context_set_fill_color(ctx, GColorFromHEX(settings_background_color()));
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
@@ -49,6 +48,17 @@ void perimeter_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
 #endif
   }
 
+  perimeter_draw_hand(ctx, bounds, time);
+}
+
+void perimeter_draw_hand(GContext *ctx, GRect bounds, ClockTime time) {
+  const PerimeterLayoutMetrics *layout = &perimeter_layout_metrics;
+  const GPoint centre = grect_center_point(&bounds);
+  const int16_t side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
+  const int16_t tick_radius = side / 2 - layout->hand_inset;
+  const GColor detail = GColorFromHEX(settings_detail_color());
+  const GColor hand = PBL_IF_COLOR_ELSE(GColorFromHEX(settings_hand_color()), detail);
+  graphics_context_set_antialiased(ctx, true);
   const int32_t hand_angle = dial_geometry_angle(
       time.minutes_today * TRIG_MAX_ANGLE / (HOURS_PER_DAY * 60));
   graphics_context_set_fill_color(ctx, hand);

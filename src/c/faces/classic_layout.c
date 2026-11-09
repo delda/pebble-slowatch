@@ -3,6 +3,7 @@
 #include "../settings.h"
 #include "dial_geometry.h"
 #include "layout_metrics.h"
+#include "perimeter.h"
 
 #define TICKS_PER_HOUR 4
 
@@ -39,23 +40,44 @@ static GColor prv_detail_color(void) {
 }
 
 static void prv_draw_quarter_labels(GContext *ctx, GRect bounds) {
+#if defined(PBL_PLATFORM_GABBRO)
+  const GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+  const GSize label_size = GSize(32, 26);
+#elif defined(PBL_PLATFORM_CHALK)
   const GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
-  const GPoint centre = grect_center_point(&bounds);
+  const GSize label_size = GSize(24, 16);
+#else
+  const GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  const GSize label_size = GSize(24, 20);
+#endif
+  GPoint centre = grect_center_point(&bounds);
+#if defined(PBL_PLATFORM_CHALK)
+  centre.y -= 1;
+#else
+  centre.y -= 3;
+#endif
 #if defined(PBL_ROUND)
   const int16_t smallest_side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
+#if defined(PBL_PLATFORM_CHALK)
+  const int16_t label_radius = smallest_side / 2 - 35;
+#else
+  const int16_t label_radius = smallest_side / 2 - 45;
+#endif
 #endif
   graphics_context_set_text_color(ctx, prv_detail_color());
   for (int hour = 0; hour < HOURS_PER_DAY; hour += 2) {
     char label[3];
-    snprintf(label, sizeof(label), hour == 0 ? "%02d" : "%d", hour);
+    snprintf(label, sizeof(label), "%02d", hour);
     const int32_t angle = dial_geometry_angle(hour * TRIG_MAX_ANGLE / HOURS_PER_DAY);
 #if defined(PBL_ROUND)
-    const GPoint point = dial_geometry_circle_point(centre, smallest_side / 2 - 40, angle);
+    const GPoint point = dial_geometry_circle_point(centre, label_radius, angle);
 #else
     const GPoint point = dial_geometry_rectangle_point(
-        centre, bounds.size.w / 2 - 35, bounds.size.h / 2 - 32, angle);
+        centre, bounds.size.w / 2 - 40, bounds.size.h / 2 - 37, angle);
 #endif
-    graphics_draw_text(ctx, label, font, GRect(point.x - 10, point.y - 8, 20, 16),
+    graphics_draw_text(ctx, label, font,
+                       GRect(point.x - label_size.w / 2, point.y - label_size.h / 2,
+                             label_size.w, label_size.h),
                        GTextOverflowModeFill, GTextAlignmentCenter, NULL);
   }
 }
@@ -65,12 +87,22 @@ static void prv_draw_quarter_labels(GContext *ctx, GRect bounds) {
 // cardinal points, bridge the gap while keeping the inner endpoint unchanged.
 static void prv_draw_quarter_hour_tick(GContext *ctx, GPoint outer, int32_t angle, int tick) {
   const int16_t length = classic_layout_metrics.short_tick_length;
-  const int16_t inner_inset = length + (length + 1) / 2 + 5;
+  int16_t inner_inset = length + (length + 1) / 2 + 5;
+#if !defined(PBL_ROUND)
+  // Move the inner marks at 03, 09, 15 and 21 inward along their rays.
+  if (tick % (6 * TICKS_PER_HOUR) == 3 * TICKS_PER_HOUR) {
+    inner_inset += 3;
+  }
+#endif
   const bool cardinal_tick = tick % (HOURS_PER_DAY * TICKS_PER_HOUR / 4) == 0;
   const int16_t start_inset = cardinal_tick ? 0 : inner_inset;
+  int16_t end_inset = inner_inset + 2 * length;
+#if defined(PBL_PLATFORM_CHALK)
+  end_inset -= 4;
+#endif
   graphics_context_set_stroke_width(ctx, 2);
   graphics_draw_line(ctx, dial_geometry_circle_point(outer, -start_inset, angle),
-                     dial_geometry_circle_point(outer, -(inner_inset + 2 * length), angle));
+                     dial_geometry_circle_point(outer, -end_inset, angle));
   graphics_context_set_stroke_width(ctx, 1);
 }
 
@@ -130,6 +162,11 @@ static void prv_draw_dial(GContext *ctx, GRect bounds, ClockTime time,
       GPoint point = dial_geometry_circle_point(centre, label_radius, angle);
       prv_draw_hour_label(ctx, hour, point, split_long_ticks);
     }
+  }
+
+  if (tick_style == CLASSIC_TICKS_SHORT) {
+    perimeter_draw_hand(ctx, bounds, time);
+    return;
   }
 
   const int32_t hand_angle =
@@ -294,6 +331,11 @@ static void prv_draw_rectangular_face(GContext *ctx, GRect bounds, ClockTime tim
       label_point.y += label_offset.y;
       prv_draw_hour_label(ctx, hour, label_point, split_long_ticks);
     }
+  }
+
+  if (tick_style == CLASSIC_TICKS_SHORT) {
+    perimeter_draw_hand(ctx, bounds, time);
+    return;
   }
 
   const int32_t hand_angle =

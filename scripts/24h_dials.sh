@@ -21,7 +21,7 @@ readonly DIAL_MESSAGE_KEY=10002
 platform_list="$(python3 -c 'import json, sys; print("\n".join(json.load(open(sys.argv[1]))["pebble"]["targetPlatforms"]))' "$PROJECT_DIR/package.json")"
 mapfile -t SUPPORTED_PLATFORMS <<< "$platform_list"
 readonly -a SUPPORTED_PLATFORMS
-readonly -a DIALS=(classic double perimeter)
+readonly -a DIALS=(classic double perimeter quarter)
 readonly -a POSITIONS=(bottom top)
 
 emulator_logs_pid=""
