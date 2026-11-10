@@ -74,8 +74,12 @@ static void prv_draw_quarter_labels(GContext *ctx, GRect bounds) {
 #else
     GPoint point = dial_geometry_rectangle_point(
         centre, bounds.size.w / 2 - 40, bounds.size.h / 2 - 37, angle);
-#if defined(PBL_PLATFORM_EMERY)
-    const GPoint offset = dial_geometry_circle_point(GPoint(0, 0), 3, angle);
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_BASALT)
+#if defined(PBL_PLATFORM_BASALT)
+    const GPoint offset = dial_geometry_circle_point(GPoint(0, 0), 10, angle);
+#else
+    const GPoint offset = dial_geometry_circle_point(GPoint(0, 0), 5, angle);
+#endif
     point.x += offset.x;
     point.y += offset.y;
 #endif
@@ -96,11 +100,18 @@ static void prv_draw_quarter_hour_tick(GContext *ctx, GPoint outer, int32_t angl
 #if !defined(PBL_ROUND)
   // Move the inner marks at 03, 09, 15 and 21 inward along their rays.
   if (tick % (6 * TICKS_PER_HOUR) == 3 * TICKS_PER_HOUR) {
-#if defined(PBL_PLATFORM_EMERY)
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_BASALT)
     inner_inset += 8;
 #else
     inner_inset += 3;
 #endif
+  }
+#endif
+#if defined(PBL_PLATFORM_EMERY) || defined(PBL_PLATFORM_BASALT)
+  const int hour = tick / TICKS_PER_HOUR;
+  if (hour == 2 || hour == 4 || hour == 8 || hour == 10 ||
+      hour == 14 || hour == 16 || hour == 20 || hour == 22) {
+    inner_inset += 3;
   }
 #endif
   const bool cardinal_tick = tick % (HOURS_PER_DAY * TICKS_PER_HOUR / 4) == 0;
