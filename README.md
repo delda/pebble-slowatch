@@ -73,8 +73,9 @@ set `pebble.watchapp.watchface` to `true` in `package.json`.
 
 ## Configuration
 
-Use the Pebble app's settings screen to choose whether midnight is at the top
-or bottom. The Clay configuration is defined in `src/pkjs/config.js` and
+Use the Pebble app's settings screen to choose Dial and Color layout from dropdown
+menus. Turn on **Midnight at top** to place midnight at the top, or turn it off
+to place midnight at the bottom (the default). The Clay configuration is defined in `src/pkjs/config.js` and
 loaded by `src/pkjs/app.js`. The preference is saved on the watch and
 immediately rotates the hour labels, ticks, and hand to match.
 

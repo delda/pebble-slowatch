@@ -57,6 +57,11 @@ static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
     } else if (strcmp(position_tuple->value->cstring, "top") == 0) {
       settings_set_midnight_position(MIDNIGHT_POSITION_TOP);
     }
+  } else if (position_tuple != NULL &&
+             (position_tuple->type == TUPLE_UINT || position_tuple->type == TUPLE_INT)) {
+    settings_set_midnight_position(position_tuple->value->uint32 != 0
+                                    ? MIDNIGHT_POSITION_TOP
+                                    : MIDNIGHT_POSITION_BOTTOM);
   }
 
 }

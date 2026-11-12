@@ -4,7 +4,7 @@ module.exports = [
     defaultValue: 'SloWatch'
   },
   {
-    type: 'radiogroup',
+    type: 'select',
     messageKey: 'dial',
     label: 'Dial',
     defaultValue: 'classic',
@@ -16,7 +16,7 @@ module.exports = [
     ]
   },
   {
-    type: 'radiogroup',
+    type: 'select',
     messageKey: 'color_layout',
     label: 'Color layout',
     defaultValue: 'default',
@@ -34,20 +34,11 @@ module.exports = [
     ]
   },
   {
-    type: 'radiogroup',
+    type: 'toggle',
     messageKey: 'midnight_position',
-    label: 'Midnight position',
-    defaultValue: 'bottom',
-    options: [
-      {
-        label: 'Midnight at top',
-        value: 'top'
-      },
-      {
-        label: 'Midnight at bottom',
-        value: 'bottom'
-      }
-    ]
+    label: 'Midnight at top',
+    description: 'On: midnight at top. Off: midnight at bottom.',
+    defaultValue: false
   },
   {
     type: 'submit',
