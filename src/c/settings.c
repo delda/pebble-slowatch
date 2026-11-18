@@ -18,6 +18,11 @@ static ColorLayout s_color_layout;
 static SettingsChangedHandler s_changed_handler;
 
 static bool prv_dial_supported(Dial dial) {
+#if defined(PBL_PLATFORM_GABBRO)
+  if (dial == DIAL_GOLD_RING) {
+    return true;
+  }
+#endif
   return dial == DIAL_CLASSIC || dial == DIAL_DOUBLE || dial == DIAL_PERIMETER ||
          dial == DIAL_QUARTER;
 }

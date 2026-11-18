@@ -7,6 +7,7 @@ typedef enum {
   DIAL_DOUBLE = 1,
   DIAL_PERIMETER = 2,
   DIAL_QUARTER = 3,
+  DIAL_GOLD_RING = 4,
 } Dial;
 
 typedef enum {

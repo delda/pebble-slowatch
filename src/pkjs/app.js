@@ -1,6 +1,11 @@
 var Clay = require('@rebble/clay');
 var config = require('./config');
 
+var watchInfo = Pebble.getActiveWatchInfo ? Pebble.getActiveWatchInfo() : null;
+if (watchInfo && watchInfo.platform === 'gabbro') {
+  config[1].options.push({ label: 'Gold Ring', value: 'gold_ring' });
+}
+
 var clay = new Clay(config);
 
 // Preserve the position saved by the previous radio control.

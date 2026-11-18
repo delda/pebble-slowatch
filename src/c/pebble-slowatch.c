@@ -32,6 +32,8 @@ static void prv_inbox_received(DictionaryIterator *iterator, void *context) {
       settings_set_dial(DIAL_PERIMETER);
     } else if (strcmp(dial_tuple->value->cstring, "quarter") == 0) {
       settings_set_dial(DIAL_QUARTER);
+    } else if (strcmp(dial_tuple->value->cstring, "gold_ring") == 0) {
+      settings_set_dial(DIAL_GOLD_RING);
     }
   }
 
