@@ -57,7 +57,7 @@ The four cardinal marks are continuous with the same 2-pixel stroke along their
 full length, bridging the gap without moving their inner endpoints.
 Select Quarter in the dial settings.
 
-**Gold Ring** (`src/c/faces/gold_ring.c`) is available on Gabbro and Chalk.
+**Gold Ring** (`src/c/faces/gold_ring.c`) is available on Gabbro, Chalk and Emery.
 Inspired by a gold single-hand watch, it uses a pale gold background, black
 0–23 numerals rendered with Pebble’s built-in Roboto Condensed 21 font and
 rotated by 180° + 15° per hour (6 at −90°, 18 at +90°), independently of the
@@ -65,9 +65,11 @@ midnight-position setting (no numeral PNG
 resources), 144 ten-minute marks, and a slender hand with
 an open ring near its tip. The hand completes one turn per day and follows
 the midnight-position setting. Its fixed gold/black palette is independent
-of the Color layout selection. Select **Gold Ring** under **Dial** on Gabbro or Chalk.
+of the Color layout selection. Select **Gold Ring** under **Dial** on Gabbro, Chalk or Emery.
 Chalk uses Roboto Condensed Regular 14 numerals, shorter marks and a smaller hand
 and ring, proportioned for its 180×180 circular display.
+Emery retains Gabbro's font and styling, with labels and marks following the
+rectangular screen edge and the hand extending to that edge.
 
 All supported platforms offer **Perimeter** (`src/c/faces/perimeter.c`): numbers 0–23
 sit near the edge, with 96 quarter-hour marks on an inner ring. The 24 marks

@@ -18,7 +18,7 @@ static ColorLayout s_color_layout;
 static SettingsChangedHandler s_changed_handler;
 
 static bool prv_dial_supported(Dial dial) {
-#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK) || defined(PBL_PLATFORM_EMERY)
   if (dial == DIAL_GOLD_RING) {
     return true;
   }

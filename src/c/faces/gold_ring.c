@@ -1,6 +1,6 @@
 #include "gold_ring.h"
 
-#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK) || defined(PBL_PLATFORM_EMERY)
 #include "dial_geometry.h"
 
 #if defined(PBL_PLATFORM_CHALK)
@@ -15,6 +15,17 @@ enum { LABEL_WIDTH = 22, LABEL_HEIGHT = 28, LABEL_INSET = 34,
 
 GColor gold_ring_face_background_color(void) {
   return GColorFromHEX(0xFFFFAA);
+}
+
+static GPoint prv_dial_point(GRect bounds, int16_t inset, int32_t angle) {
+  const GPoint centre = grect_center_point(&bounds);
+#if defined(PBL_PLATFORM_EMERY)
+  return dial_geometry_rectangle_point(centre, bounds.size.w / 2 - inset,
+                                       bounds.size.h / 2 - inset, angle);
+#else
+  const int16_t side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
+  return dial_geometry_circle_point(centre, side / 2 - inset, angle);
+#endif
 }
 
 // Render the system font in a temporary central box, then rotate that bitmap.
@@ -66,9 +77,6 @@ static void prv_draw_rotated_label(Layer *layer, GContext *ctx, GBitmap *label_b
 void gold_ring_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   const GRect bounds = layer_get_bounds(layer);
   const GPoint centre = grect_center_point(&bounds);
-  const int16_t side = bounds.size.w < bounds.size.h ? bounds.size.w : bounds.size.h;
-  const int16_t tick_radius = side / 2 - 1;
-  const int16_t label_radius = side / 2 - LABEL_INSET;
   const GColor gold = gold_ring_face_background_color();
 
   graphics_context_set_antialiased(ctx, true);
@@ -83,8 +91,8 @@ void gold_ring_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
     const int16_t length = full_hour ? HOUR_TICK_LENGTH
         : (tick % 3 == 0 ? HALF_HOUR_TICK_LENGTH : SHORT_TICK_LENGTH);
     graphics_context_set_stroke_width(ctx, full_hour ? 2 : 1);
-    graphics_draw_line(ctx, dial_geometry_circle_point(centre, tick_radius, angle),
-                       dial_geometry_circle_point(centre, tick_radius - length, angle));
+    const GPoint outer = prv_dial_point(bounds, 1, angle);
+    graphics_draw_line(ctx, outer, dial_geometry_circle_point(outer, -length, angle));
   }
 
   graphics_context_set_text_color(ctx, GColorBlack);
@@ -100,7 +108,7 @@ void gold_ring_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
                              LABEL_WIDTH, LABEL_HEIGHT);
   for (int hour = 0; hour < 24; hour++) {
     const int32_t angle = dial_geometry_angle(hour * TRIG_MAX_ANGLE / 24);
-    const GPoint point = dial_geometry_circle_point(centre, label_radius + 2, angle);
+    const GPoint point = prv_dial_point(bounds, LABEL_INSET - 2, angle);
     char label[3];
     snprintf(label, sizeof(label), "%d", hour);
     if (label_bitmap != NULL) {
@@ -122,14 +130,13 @@ void gold_ring_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
 #endif
 
   const int32_t angle = dial_geometry_angle(time.minutes_today * TRIG_MAX_ANGLE / (24 * 60));
-  const GPoint tip = dial_geometry_circle_point(centre, tick_radius, angle);
-  const int16_t ring_radius = label_radius + RING_OFFSET;
-  const GPoint ring = dial_geometry_circle_point(centre, ring_radius, angle);
+  const GPoint tip = prv_dial_point(bounds, 1, angle);
+  const GPoint ring = prv_dial_point(bounds, LABEL_INSET - RING_OFFSET, angle);
   graphics_context_set_stroke_color(ctx, GColorBlack);
   graphics_context_set_stroke_width(ctx, HAND_STROKE);
   graphics_draw_line(ctx, centre,
-                     dial_geometry_circle_point(centre, ring_radius - RING_SIZE - 1, angle));
-  graphics_draw_line(ctx, dial_geometry_circle_point(centre, ring_radius + RING_SIZE + 1, angle), tip);
+                     dial_geometry_circle_point(ring, -RING_SIZE - 1, angle));
+  graphics_draw_line(ctx, dial_geometry_circle_point(ring, RING_SIZE + 1, angle), tip);
   graphics_context_set_stroke_width(ctx, 2);
   graphics_draw_circle(ctx, ring, RING_SIZE);
   graphics_context_set_fill_color(ctx, GColorBlack);
