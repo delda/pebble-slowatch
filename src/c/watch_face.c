@@ -18,10 +18,8 @@ void watch_face_deinit(void) {
 
 GColor watch_face_background_color(void) {
   switch (settings_dial()) {
-#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK) || defined(PBL_PLATFORM_EMERY)
     case DIAL_GOLD_RING:
       return gold_ring_face_background_color();
-#endif
     case DIAL_DOUBLE:
       return double_face_background_color();
     case DIAL_CLASSIC:
@@ -32,11 +30,9 @@ GColor watch_face_background_color(void) {
 
 void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   switch (settings_dial()) {
-#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK) || defined(PBL_PLATFORM_EMERY)
     case DIAL_GOLD_RING:
       gold_ring_face_draw(layer, ctx, time);
       break;
-#endif
     case DIAL_QUARTER:
       quarter_face_draw(layer, ctx, time);
       break;

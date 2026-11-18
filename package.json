@@ -62,6 +62,13 @@
           "targetPlatforms": ["chalk"]
         },
         {
+          "file": "fonts/RobotoCondensed-Regular.ttf",
+          "name": "FONT_ROBOTO_CONDENSED_REGULAR_16",
+          "type": "font",
+          "characterRegex": "[0-9]",
+          "targetPlatforms": ["basalt", "aplite", "diorite", "flint"]
+        },
+        {
           "file": "images/slowatch.png",
           "menuIcon": true,
           "name": "MENU_ICON",
