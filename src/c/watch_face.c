@@ -18,7 +18,7 @@ void watch_face_deinit(void) {
 
 GColor watch_face_background_color(void) {
   switch (settings_dial()) {
-#if defined(PBL_PLATFORM_GABBRO)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
     case DIAL_GOLD_RING:
       return gold_ring_face_background_color();
 #endif
@@ -32,7 +32,7 @@ GColor watch_face_background_color(void) {
 
 void watch_face_draw(Layer *layer, GContext *ctx, ClockTime time) {
   switch (settings_dial()) {
-#if defined(PBL_PLATFORM_GABBRO)
+#if defined(PBL_PLATFORM_GABBRO) || defined(PBL_PLATFORM_CHALK)
     case DIAL_GOLD_RING:
       gold_ring_face_draw(layer, ctx, time);
       break;

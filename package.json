@@ -55,6 +55,13 @@
           "characterRegex": "[0-9]"
         },
         {
+          "file": "fonts/RobotoCondensed-Regular.ttf",
+          "name": "FONT_ROBOTO_CONDENSED_REGULAR_14",
+          "type": "font",
+          "characterRegex": "[0-9]",
+          "targetPlatforms": ["chalk"]
+        },
+        {
           "file": "images/slowatch.png",
           "menuIcon": true,
           "name": "MENU_ICON",
